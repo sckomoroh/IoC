@@ -1,0 +1,59 @@
+@startuml
+
++interface IContext {
+    + T resolve(Class type)
+    + T resolve(Class type, String id)
+}
+
++interface IContextBuilder {
+    + IContext build(Object config)
+}
+
++interface IContextFactory {
+    - IContextBuilder mBuilder
+    + IContext create(Object config)
+}
+
++class ConfigBeanItem {
+    + String mId;
+    + Class<?> mInterface;
+    + Object mInstance;
+}
+
++class ContextBuilder {
+    - List<MethodBeanItem> enumerateBeanGetters(Object config)
+    - Object createWithoutParameters(Object config, MethodBeanItem methodItem, List<ConfigBeanItem> beanList)
+    - Object createInstance(Object config, MethodBeanItem methodItem, List<MethodBeanItem> methodList, List<ConfigBeanItem> beanList)
+    - Object findInstance(String id, Class clazz, List<ConfigBeanItem> beanList)
+    - findMethodItem(String id, Class clazz, List<MethodBeanItem> methodList)
+}
+
++class ContextFactory {
+    +ContextFactory(IContextBuilder builder)
+}
+
++class Context {
+    - List<ConfigBeanItem> mBeanList
+    + Context(List<ConfigBeanItem> beanList)
+}
+
++interface Bean {
+    + String id;
+}
+
++interface BeanParameter {
+    + String id;
+}
+
+IContext <|-- Context
+IContextFactory <|-- ContextFactory
+IContextBuilder <|-- ContextBuilder
+
+ContextBuilder --> ConfigBeanItem : create
+ContextBuilder --> Context : create
+ContextFactory "1" o-- "1" IContextBuilder
+ContextBuilder --> Bean : use
+ContextBuilder --> BeanParameter : use
+Context "1" o-- "*" ConfigBeanItem
+
+@enduml
